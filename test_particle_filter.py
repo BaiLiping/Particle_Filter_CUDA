@@ -56,12 +56,23 @@ def update(num):
     print("Average particle position after prediction:", np.mean(particles[:, 0]), np.mean(particles[:, 1]))
 
     pf.update(particles, noisy_x, noisy_y)
+
+
     print("Particle weights after update - Min:", np.min(particles[:, 2]), "Max:", np.max(particles[:, 2]), "Average:", np.mean(particles[:, 2]))
 
     new_particles = np.zeros_like(particles)
     cumulative_weights = np.cumsum(particles[:, 1])
+    # Normalize weights
+    if np.sum(particles[:, 2]) < 1e-10:
+        particles[:, 2] = 1.0 / NUM_PARTICLES
+    else:
+        particles[:, 2] /= np.sum(particles[:, 2])
     pf.resample(particles, new_particles, cumulative_weights)
     particles[:] = new_particles
+    print("Particle weights after resampling:")
+    print(particles[:, 2])
+    print("Particle positions after resampling:")
+    print(particles[:, :2])
 
     print("Average particle position after resampling:", np.mean(particles[:, 0]), np.mean(particles[:, 1]))
     print("-" * 50)
@@ -78,4 +89,5 @@ def update(num):
     ax.legend()
 
 ani = animation.FuncAnimation(fig, update, frames=FRAME_NUMBER, repeat=False)
+
 plt.show()
